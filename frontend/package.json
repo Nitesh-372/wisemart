@@ -1,0 +1,23 @@
+{
+  "name": "wisemart-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "axios": "^1.13.2",
+    "lucide-react": "^0.468.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^6.30.2"
+  },
+  "devDependencies": {
+    "vite": "^7.2.4"
+  }
+}
