@@ -1,5 +1,5 @@
 # WiseMart
-
+hiii
 **Shop Smarter with AI**
 
 WiseMart is a production-quality AI-powered e-commerce platform built from the original minor project foundation. It preserves the existing product dataset, images, similarity recommender, and frequently-bought-together model while adding a modern startup-grade interface, authentication, cart, checkout, and deployment readiness.
