@@ -52,10 +52,14 @@ class FrequentBoughtModel:
         self.rules = rules
         
     def predict(self, product_name, top_n=5):
-        print(f"\nLooking for product: {product_name}")
-
+        """
+        Returns a list of dicts, each with:
+          - product_name : str   (consequent product name from association rules)
+          - confidence   : float (how often the rule is correct)
+          - lift         : float (how much better than random chance)
+        Returns [] if no rules match or rules are empty.
+        """
         if self.rules.empty:
-            print("ERROR: No association rules found.")
             return []
 
         product_lower = product_name.lower().strip()
@@ -69,28 +73,21 @@ class FrequentBoughtModel:
             )
         ]
 
-        print(f"Matching rules found: {len(rules_filtered)}")
-        print("Sample antecedents:")
-        for ants in self.rules['antecedents'].head(10):
-         print(list(ants))
-
-
         if rules_filtered.empty:
-            print("No matching rules found.")
             return []
 
-        results = []
+        # Sort by lift descending so the most meaningful associations come first
+        rules_filtered = rules_filtered.sort_values("lift", ascending=False)
 
+        results = []
         for _, row in rules_filtered.head(top_n).iterrows():
             consequents = list(row['consequents'])
-
             if not consequents:
                 continue
-
             results.append({
-                "product": consequents[0],
-                "confidence": float(row['confidence']),
-                "lift": float(row['lift'])
+                "product_name": str(consequents[0]),
+                "confidence": round(float(row['confidence']), 4),
+                "lift": round(float(row['lift']), 4),
             })
 
         return results

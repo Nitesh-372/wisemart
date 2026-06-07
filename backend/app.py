@@ -236,22 +236,36 @@ def create_app():
     @app.post("/recommend/frequent")
     @current_user_required
     def recommend_frequent():
-            data = request.get_json(silent=True) or {}
-            product_name = data.get("product_name")
+        data = request.get_json(silent=True) or {}
+        product_name = data.get("product_name")
+        if not product_name:
+            return jsonify({"error": "product_name missing"}), 400
 
-            similar_results = similar_model.predict(product_name, top_n=4)
+        # Build a name→product lookup for fast resolution of consequent names
+        name_to_product = {
+            p["product_name"].lower().strip(): p
+            for p in product_map.values()
+        }
 
-            response = []
+        frequent_results = frequent_model.predict(product_name, top_n=5)
 
-            for _, row in similar_results.iterrows():
-                pid = str(row["product_id"])
+        response = []
+        for item in frequent_results:
+            consequent_name = item["product_name"].lower().strip()
+            matched = name_to_product.get(consequent_name)
+            if not matched:
+                continue
+            prod = enrich(matched)
+            prod["confidence"] = item["confidence"]
+            prod["lift"] = item["lift"]
+            prod["explanation"] = (
+                f"Customers who bought '{product_name}' also bought this "
+                f"(confidence: {round(item['confidence'] * 100, 1)}%, "
+                f"lift: {item['lift']})."
+            )
+            response.append(prod)
 
-                if pid in product_map:
-                    prod = enrich(product_map[pid])
-                    prod["explanation"] = "Frequently bought together."
-                    response.append(prod)
-
-            return jsonify(response)
+        return jsonify(response)
 
     @app.get("/recommend/personalized")
     @current_user_required
